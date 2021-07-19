@@ -2,22 +2,22 @@ import Auth from '@aws-amplify/auth';
 import { Hub } from '@aws-amplify/core';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import React, { useEffect, useState } from 'react';
-import Button from '../Button';
+import Button from './Button';
 import Container from './Container';
 import Form from './Form';
 
 function Profile() {
+  const [user, setUser] = useState(null);
   useEffect(() => {
     checkUser();
     Hub.listen('auth', data => {
       const { payload } = data;
+      console.log(payload.event);
       if (payload.event === 'signOut') {
         setUser(null);
       }
     });
   }, []);
-
-  const [user, setUser] = useState({});
 
   const checkUser = async () => {
     try {
@@ -47,4 +47,4 @@ function Profile() {
   return <Form setUser={setUser} />;
 }
 
-export default withAuthenticator(Profile);
+export default Profile;
