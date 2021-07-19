@@ -1,5 +1,10 @@
 import Auth from '@aws-amplify/auth';
 import React, { useState } from 'react';
+import ConfirmSignUp from './ConfirmSignUp';
+import ForgotPassword from './ForgotPassword';
+import ForgotPasswordSubmit from './ForgotPasswordSubmit';
+import SignIn from './SignIn';
+import SignUp from './SignUp';
 
 const initialFormState = {
   username: '',
@@ -11,6 +16,14 @@ const initialFormState = {
 function Form(props) {
   const [formType, updateFormType] = useState('signIn');
   const [formState, updateFormState] = useState(initialFormState);
+
+  const updateForm = event => {
+    const newFormState = {
+      ...formState,
+      [event.target.name]: event.target.value
+    };
+    updateFormState(newFormState);
+  };
 
   const signIn = async ({ username, password }, setUser) => {
     try {
@@ -66,8 +79,84 @@ function Form(props) {
   };
 
   function renderForm() {
-    return <div>{renderForm()}</div>;
+    switch (formType) {
+      case 'signUp':
+        return (
+          <SignUp
+            signUp={() => signUp(formState, updateFormType)}
+            updateFormState={e => updateForm(e)}
+          />
+        );
+      case 'confirmSignUp':
+        return (
+          <ConfirmSignUp
+            confirmSignUp={() => confirmSignUp(formState, updateFormType)}
+            updateFormState={e => updateForm(e)}
+          />
+        );
+      case 'signIn':
+        return (
+          <SignIn
+            signIn={() => signIn(formState, props.setUser)}
+            updateFormState={e => updateForm(e)}
+          />
+        );
+      case 'forgotPassword':
+        return (
+          <ForgotPassword
+            forgotPassword={() => forgotPassword(formState, updateFormType)}
+            updateFormState={e => updateForm(e)}
+          />
+        );
+      case 'forgotPasswordSubmit':
+        return (
+          <ForgotPasswordSubmit
+            forgotPasswordSubmit={() =>
+              forgotPassword(formState, updateFormType)
+            }
+            updateFormState={e => updateForm(e)}
+          />
+        );
+      default:
+        return null;
+    }
   }
+
+  return (
+    <div>
+      {renderForm()}
+      {formType === 'signUp' && (
+        <p style={styles.toggleForm}>
+          Already have an account ?{' '}
+          <span style={styles.anchor} onClick={() => updateFormType('signIn')}>
+            Sign In
+          </span>
+        </p>
+      )}
+      {formType === 'signIn' && (
+        <>
+          <p style={styles.toggleForm}>
+            Need an account ?{' '}
+            <span
+              style={styles.anchor}
+              onClick={() => updateFormType('signUp')}
+            >
+              Sign Up
+            </span>
+          </p>
+          <p style={{ ...styles.toggleForm, ...styles.resetPassword }}>
+            Forget your password ?{' '}
+            <span
+              style={styles.anchor}
+              onClick={() => updateFormType('forgotPassword')}
+            >
+              Reset password
+            </span>
+          </p>
+        </>
+      )}
+    </div>
+  );
 }
 
 const styles = {
