@@ -1,3 +1,4 @@
+import Auth from '@aws-amplify/auth';
 import React, { useState } from 'react';
 
 const initialFormState = {
@@ -10,6 +11,59 @@ const initialFormState = {
 function Form(props) {
   const [formType, updateFormType] = useState('signIn');
   const [formState, updateFormState] = useState(initialFormState);
+
+  const signIn = async ({ username, password }, setUser) => {
+    try {
+      const user = await Auth.signIn(username, password);
+      const userInfo = { username: user.username, ...user.attributes };
+      setUser(userInfo);
+    } catch (err) {
+      console.log('error signing in...', err);
+    }
+  };
+
+  const signUp = async ({ username, password, email }, updateFormType) => {
+    try {
+      await Auth.signUp({ username, password, attributes: { email } });
+      alert('Sign Up success!');
+      updateFormType('confirmSignUp');
+    } catch (err) {
+      console.log('error signing up...', err);
+    }
+  };
+
+  const confirmSignUp = async (
+    { username, confirmationCode },
+    updateFormType
+  ) => {
+    try {
+      await Auth.confirmSignUp(username, confirmationCode);
+      updateFormType('signIn');
+    } catch (err) {
+      console.log('error signing up..', err);
+    }
+  };
+
+  const forgotPassword = async ({ username }, updateFormType) => {
+    try {
+      await Auth.forgotPassword(username);
+      updateFormType('forgotPasswordSubmit');
+    } catch (err) {
+      console.log('error submitting username to reset password...', err);
+    }
+  };
+
+  const forgotPasswordSubmit = async (
+    { username, confirmationCode, password },
+    updateFormType
+  ) => {
+    try {
+      await Auth.forgotPasswordSubmit(username, confirmationCode, password);
+      updateFormType('signIn');
+    } catch (err) {
+      console.log('error updating password... ', err);
+    }
+  };
 
   function renderForm() {
     return <div>{renderForm()}</div>;
